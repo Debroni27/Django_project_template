@@ -1,0 +1,11 @@
+data
+dump
+temp
+
+**/__pycache__
+.git
+.mypy_cache
+
+*.tgz
+*.gz
+*.json

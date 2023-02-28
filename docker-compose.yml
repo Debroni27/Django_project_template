@@ -1,0 +1,73 @@
+version: '3.9'
+
+x-db:
+  hostname: &db_hostname "db"
+  port: &db_port 5432
+  database: &db_name "db"
+  username: &db_username "dev_user"
+  password: &db_password "dev_pass" 
+
+x-app-settings:
+  app-settings: &app_settings
+    POSTGRES_HOST: *db_hostname
+    POSTGRES_PORT: *db_port
+    POSTGRES_DB: *db_name
+    POSTGRES_USER: *db_username
+    POSTGRES_PASSWORD: *db_password
+    DJANGO_HOST: 0.0.0.0
+    DJANGO_PORT: 8000
+
+services:
+  db:
+    image: postgres:14.2-alpine
+    environment:
+      POSTGRES_DB: *db_name
+      POSTGRES_USER: *db_username
+      POSTGRES_PASSWORD: *db_password
+    command: postgres -c 'max_connections=2000'
+    networks:
+      - backend
+    ports:
+      - "5432:5432"
+  pgweb:
+    image: sosedoff/pgweb
+    restart: unless-stopped
+    networks:
+      - backend
+    ports:
+      - "8081:8081"
+    links:
+      - db:postgres
+    environment:
+      - DATABASE_URL=postgres://dev_user:dev_pass@postgres:5432/db?sslmode=disable
+    depends_on:
+      db:
+        condition: service_started
+
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_started
+    entrypoint: [ "bash", "run_server.sh" ]
+    networks:
+      - backend
+    environment: *app_settings
+
+  tests:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_started
+    command: "python manage.py test"
+
+networks:
+  backend: {}
