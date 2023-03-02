@@ -19,8 +19,8 @@
 5) Устанавливаем все зависимости `pip install poetry` -> `poetry install`
 6) В корне проекта создаем env файл `touch .env`. 
 -> [DB_NAME="db" DB_USER="dev_user" DB_PASSWORD="dev_pass" DB_HOST="db" DB_PORT=5432]
--> Для Django преокта создавайте свои значения
-7) Проверяем наличие docker и docker-compose `docker -version`, `docker-compose -version`. При отсутствии установить 
+-> Для Django проекта создавайте свои значения
+7) Проверяем наличие docker и docker-compose `docker --version`, `docker-compose --version`. При отсутствии установить 
 8) Поочереди начинаем билдить сервисы `docker-compose up --build db`, затем pgweb и сам server
 
 В итоге у нас есть готовая база в контейнере, есть запущенный django проект
